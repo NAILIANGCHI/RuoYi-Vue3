@@ -3,16 +3,24 @@ import request from '@/utils/request'
 // 查询客户主表列表
 export function listGuest(query) {
   return request({
-    url: '/guest/guest/list',
+    url: '/guest/list',
+    method: 'get',
+    params: query
+  })
+}
+export function listDelGuest(query) {
+  return request({
+    url: '/guest/del/list',
     method: 'get',
     params: query
   })
 }
 
+
 // 查询客户主表详细
 export function getGuest(id) {
   return request({
-    url: '/guest/guest/' + id,
+    url: '/guest/' + id,
     method: 'get'
   })
 }
@@ -20,7 +28,7 @@ export function getGuest(id) {
 // 新增客户主表
 export function addGuest(data) {
   return request({
-    url: '/guest/guest',
+    url: '/guest',
     method: 'post',
     data: data
   })
@@ -29,7 +37,7 @@ export function addGuest(data) {
 // 修改客户主表
 export function updateGuest(data) {
   return request({
-    url: '/guest/guest',
+    url: '/guest',
     method: 'put',
     data: data
   })
@@ -38,7 +46,7 @@ export function updateGuest(data) {
 // 删除客户主表
 export function delGuest(id) {
   return request({
-    url: '/guest/guest/' + id,
+    url: '/guest/' + id,
     method: 'delete'
   })
 }

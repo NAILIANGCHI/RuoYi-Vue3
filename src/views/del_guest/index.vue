@@ -170,7 +170,7 @@
 </template>
 
 <script setup name="Guest">
-import { listGuest, getGuest, delGuest, addGuest, updateGuest } from "@/api/guest/guest";
+import { listDelGuest, getGuest, delGuest, addGuest, updateGuest } from "@/api/guest/guest";
 
 const { proxy } = getCurrentInstance();
 const { sys_common_status } = proxy.useDict('sys_common_status');
@@ -223,7 +223,7 @@ const data = reactive({
 
 const { queryParams, form, rules } = toRefs(data);
 
-/** 查询客户主表列表 */
+/** 查询已删除客户主表列表 */
 function getList() {
   loading.value = true;
   queryParams.value.params = {};
@@ -231,7 +231,7 @@ function getList() {
     queryParams.value.params["beginCreateTime"] = daterangeCreateTime.value[0];
     queryParams.value.params["endCreateTime"] = daterangeCreateTime.value[1];
   }
-  listGuest(queryParams.value).then(response => {
+  listDelGuest(queryParams.value).then(response => {
     guestList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -332,8 +332,8 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _ids = row.guestId || ids.value || guestId.value;
-  proxy.$modal.confirm('是否确认删除客户代码编号为"' + row.guestId + '"的数据项？', row.id).then(function() {
-    return delGuest(row.id);
+  proxy.$modal.confirm('是否确认删除客户主表编号为"' + guestId.value + '"的数据项？', ids).then(function() {
+    return delGuest(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
