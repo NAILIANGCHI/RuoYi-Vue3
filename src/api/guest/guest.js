@@ -28,7 +28,7 @@ export function getGuest(id) {
 // 新增客户主表
 export function addGuest(data) {
   return request({
-    url: '/guest',
+    url: '/guest/add',
     method: 'post',
     data: data
   })

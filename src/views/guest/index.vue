@@ -84,8 +84,11 @@
     </el-row>
 
     <el-table v-loading="loading" :data="guestList" @selection-change="handleSelectionChange">
+      <!-- 其他列 -->
       <el-table-column type="selection" width="55" align="center" />
-<!--      <el-table-column label="主键id" align="center" prop="id" />-->
+      <!-- 序号列 -->
+      <el-table-column type="index" label="序号" width="50" align="center" />
+
       <el-table-column label="客户id" align="center" prop="guestId" />
       <el-table-column label="客户名称" align="center" prop="guestName" />
       <el-table-column label="公司名称" align="center" prop="companyName" />
@@ -331,14 +334,22 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _ids = row.guestId || ids.value || guestId.value;
-  proxy.$modal.confirm('是否确认删除客户代码编号为"' + row.guestId + '"的数据项？', row.id).then(function() {
-    return delGuest(row.id);
+  // 确定是单选还是多选操作
+  const selectedGuestIds = row.guestId ? [row.guestId] : guestId.value;
+
+  // 提示用户是否确认删除
+  proxy.$modal.confirm('是否确认删除客户代码编号为"' + selectedGuestIds.join(', ') + '"的数据项？').then(() => {
+    // 根据是单选还是多选调用删除接口
+    const idsToDelete = row.guestId ? [row.id] : ids.value;
+    return delGuest(idsToDelete);
   }).then(() => {
-    getList();
+    getList(); // 刷新列表
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => {
+    // 用户取消操作或出现错误时的回调（可留空）
+  });
 }
+
 
 /** 导出按钮操作 */
 function handleExport() {
