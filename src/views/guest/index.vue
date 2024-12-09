@@ -88,34 +88,28 @@
       <el-table-column type="selection" width="55" align="center" />
       <!-- 序号列 -->
       <el-table-column type="index" label="序号" width="50" align="center" />
-
       <el-table-column label="客户id" align="center" prop="guestId" />
       <el-table-column label="客户名称" align="center" prop="guestName" />
       <el-table-column label="公司名称" align="center" prop="companyName" />
-      <el-table-column label="邮箱" align="center" prop="mail">
-        <template #default="scope">
-          <dict-tag :options="sys_common_status" :value="scope.row.mail"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="客户类型" align="center" prop="guetsType" />
+      <el-table-column label="客户类型" align="center" prop="guestType" />
       <el-table-column label="状态" align="center" prop="state">
         <template #default="scope">
           <dict-tag :options="sys_user_status" :value="scope.row.state"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="100">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新者" align="center" prop="updateBy" />
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="100">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="最后登录ip" align="center" prop="loginIp" />
-      <el-table-column label="最后登录时间" align="center" prop="loginTime" width="180">
+      <el-table-column label="最后登录时间" align="center" prop="loginTime" width="100">
         <template #default="scope">
           <span>{{ parseTime(scope.row.loginTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -199,7 +193,7 @@ const data = reactive({
     guestId: null,
     guestName: null,
     companyName: null,
-    guetsType: null,
+    guestType: null,
     createTime: null,
   },
   rules: {
@@ -218,7 +212,7 @@ const data = reactive({
     mail: [
       { required: true, message: "邮箱不能为空", trigger: "blur" }
     ],
-    guetsType: [
+    guestType: [
       { required: true, message: "客户类型不能为空", trigger: "change" }
     ],
   }
@@ -258,7 +252,7 @@ function reset() {
     password: null,
     mail: null,
     mailState: null,
-    guetsType: null,
+    guestType: null,
     state: null,
     createTime: null,
     updateBy: null,

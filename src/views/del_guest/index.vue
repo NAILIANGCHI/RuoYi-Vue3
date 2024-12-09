@@ -42,34 +42,24 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-            type="primary"
-            plain
-            icon="Plus"
-            @click="handleAdd"
-            v-hasPermi="['guest:guest:add']"
-        >新增</el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            plain-->
+<!--            icon="Plus"-->
+<!--            @click="handleAdd"-->
+<!--            v-hasPermi="['guest:guest:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="success"
             plain
-            icon="Edit"
-            :disabled="single"
-            @click="handleUpdate"
-            v-hasPermi="['guest:guest:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-            type="danger"
-            plain
-            icon="Delete"
+            icon="refresh-left"
             :disabled="multiple"
-            @click="handleDelete"
-            v-hasPermi="['guest:guest:remove']"
-        >删除</el-button>
+            @click="handleRecover"
+            v-hasPermi="['guest:guest:recover']"
+        >恢复</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -85,7 +75,8 @@
 
     <el-table v-loading="loading" :data="guestList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-<!--      <el-table-column label="主键id" align="center" prop="id" />-->
+      <!-- 序号列 -->
+      <el-table-column type="index" label="序号" width="50" align="center" />
       <el-table-column label="客户id" align="center" prop="guestId" />
       <el-table-column label="客户名称" align="center" prop="guestName" />
       <el-table-column label="公司名称" align="center" prop="companyName" />
@@ -121,7 +112,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['guest:guest:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['guest:guest:remove']">删除</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleRecover(scope.row)" v-hasPermi="['guest:guest:recover']">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -170,7 +161,7 @@
 </template>
 
 <script setup name="Guest">
-import { listDelGuest, getGuest, delGuest, addGuest, updateGuest } from "@/api/guest/guest";
+import { listDelGuest, getGuest, addGuest, updateGuest, recoverGuest } from "@/api/guest/guest";
 
 const { proxy } = getCurrentInstance();
 const { sys_common_status } = proxy.useDict('sys_common_status');
@@ -329,17 +320,23 @@ function submitForm() {
   });
 }
 
-/** 删除按钮操作 */
-function handleDelete(row) {
-  const _ids = row.guestId || ids.value || guestId.value;
-  proxy.$modal.confirm('是否确认删除客户主表编号为"' + guestId.value + '"的数据项？', ids).then(function() {
-    return delGuest(_ids);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
-}
+/** 恢复按钮操作 */
+function handleRecover(row) {
+  // 确定是单选还是多选操作
+  const selectedGuestIds = row.guestId ? [row.guestId] : guestId.value;
 
+  // 提示用户是否确认删除
+  proxy.$modal.confirm('是否确认恢复代码编号为"' + selectedGuestIds.join(', ') + '"的客户？').then(() => {
+    // 根据是单选还是多选调用删除接口
+    const idsToRecover = row.guestId ? [row.id] : ids.value;
+    return recoverGuest(idsToRecover);
+  }).then(() => {
+    getList(); // 刷新列表
+    proxy.$modal.msgSuccess("恢复成功");
+  }).catch(() => {
+    // 用户取消操作或出现错误时的回调（可留空）
+  });
+}
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download('guest/guest/export', {

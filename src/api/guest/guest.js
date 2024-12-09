@@ -49,4 +49,12 @@ export function delGuest(id) {
     url: '/guest/' + id,
     method: 'delete'
   })
+  //恢复客户主表
+}
+
+export function recoverGuest(id) {
+  return request({
+    url: '/guest/recover/' + id,
+    method: 'post'
+  })
 }
