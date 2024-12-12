@@ -182,7 +182,7 @@ export default {
           pageSize: queryParams.pageSize,
           // Uncomment and provide additional filters as needed
           // customerCode: queryParams.customerCode,
-          // warehousingNumber: queryParams.warehousingNumber,
+          warehousingNumber: queryParams.warehousingNumber,
           // orderStatus: queryParams.orderStatus,
           // beginCreateTime: queryParams.beginCreateTime,
           // endCreateTime: queryParams.endCreateTime,
