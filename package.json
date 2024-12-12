@@ -16,11 +16,11 @@
     "url": "https://gitee.com/y_project/RuoYi-Vue.git"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "2.3.1",
+    "@element-plus/icons-vue": "^2.3.1",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "10.11.0",
     "axios": "0.28.1",
-    "echarts": "5.5.1",
+    "echarts": "^5.5.1",
     "element-plus": "2.7.6",
     "file-saver": "2.0.5",
     "fuse.js": "6.6.2",
@@ -31,6 +31,7 @@
     "splitpanes": "3.1.5",
     "vue": "3.4.31",
     "vue-cropper": "1.1.1",
+    "vue-echarts": "^7.0.3",
     "vue-router": "4.4.0"
   },
   "devDependencies": {

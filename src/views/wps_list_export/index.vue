@@ -165,12 +165,12 @@
 
 <script>
 import {onMounted, reactive, ref} from 'vue';
-import {ElMessage} from 'element-plus';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import {exportCheck, getWpsAllData} from "@/api/wps_list_export/wps_list_export";
 
 
 export default {
-  name: 'Logistics',
+  name: 'wps_list_export',
   setup() {
     const dataSource = ref([]);
     const loading = ref(false);
@@ -181,7 +181,6 @@ export default {
     const multiple = ref(true);
     const totalRecords = ref(0);
     const daterangeCreateTime = ref([]);
-    // const pageSizeValue = ref(10)
 
     const queryParams = reactive({
       page: 1,
@@ -215,27 +214,43 @@ export default {
     };
 
     const postRobot = async (item) => {
-      loading.value = true; // 使用 Vue 的 reactive 状态控制加载
-      try {
-        const response = await exportCheck(item); // 假设 `exportCheck` 是已引入的 API 方法
-        console.log(response);
+      // 使用 Vue 的 reactive 状态控制加载
+      loading.value = true;
 
-        if (response.code !== '200') {
-          // API 响应状态码不为 200，提示错误信息
-          ElMessage.success(response.message || '推送账单机器人成功');
-        }
-      } catch (error) {
-        // 捕获异常，根据错误类型显示信息
-        if (error.response) {
-          const errorData = error.response.data || { message: '服务器响应异常' };
-          ElMessage.error(errorData.message || '未知错误');
-        } else {
-          // 捕获非 HTTP 错误
-          ElMessage.error(error.message || '发生意外错误');
-        }
-      } finally {
-        loading.value = false; // 结束加载状态
-      }
+      // 弹出二级确认框
+      ElMessageBox.confirm('您确定要推送账单机器人吗？', '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+          .then(async () => {
+            // 用户点击 "确定" 后继续执行请求
+            try {
+              const response = await exportCheck(item); // 假设 `exportCheck` 是已引入的 API 方法
+              console.log(response);
+
+              if (response.code !== '200') {
+                // API 响应状态码不为 200，提示错误信息
+                ElMessage.success(response.message || '推送账单机器人成功');
+              }
+            } catch (error) {
+              // 捕获异常，根据错误类型显示信息
+              if (error.response) {
+                const errorData = error.response.data || { message: '服务器响应异常' };
+                ElMessage.error(errorData.message || '未知错误');
+              } else {
+                // 捕获非 HTTP 错误
+                ElMessage.error(error.message || '发生意外错误');
+              }
+            } finally {
+              loading.value = false; // 结束加载状态
+            }
+          })
+          .catch(() => {
+            // 用户点击 "取消" 后，终止操作
+            loading.value = false;
+            ElMessage.info('操作已取消');
+          });
     };
 
 
