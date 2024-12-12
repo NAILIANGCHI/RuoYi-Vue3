@@ -58,6 +58,25 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
+<!--    &lt;!&ndash; 数据表格 &ndash;&gt;-->
+<!--    <el-table v-loading="loading" :data="dataSource" @selection-change="handleSelectionChange" border>-->
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      <el-table-column type="index" label="序号" width="50" align="center" />-->
+<!--      <el-table-column label="客户代码" align="center" prop="customerCode" />-->
+<!--      <el-table-column label="物流模式" align="center" prop="logisticsMode" />-->
+<!--      <el-table-column label="入库单号" align="center" prop="warehousingNumber" />-->
+<!--      <el-table-column label="订单状态" align="center" prop="orderStatus" />-->
+<!--      <el-table-column label="负责人" align="center" prop="principal" />-->
+<!--      <el-table-column label="发货时间" align="center" prop="sellerShipmentDate" />-->
+<!--      <el-table-column label="费用合计" align="center" prop="customerInitialBillingTotal" />-->
+<!--      <el-table-column label="操作" align="center">-->
+<!--        <template #default="scope">-->
+<!--          <el-button link type="primary" @click="handleOpenDetail(scope.row)">查看详情</el-button>-->
+<!--          <el-button link type="primary" @click="postRobot(scope.row)" v-hasPermi="['wps:check']">导出账单</el-button>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--    </el-table>-->
+
     <!-- 数据表格 -->
     <el-table v-loading="loading" :data="dataSource" @selection-change="handleSelectionChange" border>
       <el-table-column type="selection" width="55" align="center" />
@@ -82,7 +101,7 @@
         v-show="totalRecords > 0"
         :total="totalRecords"
         v-model:page="queryParams.page"
-        v-model:pageSize="queryParams.pageSize"
+        v-model:limit="queryParams.pageSize"
         @pagination="handlePageChange"
     />
 
@@ -145,9 +164,9 @@
 </template>
 
 <script>
-import {ref, reactive, onMounted} from 'vue';
+import {onMounted, reactive, ref} from 'vue';
 import {ElMessage} from 'element-plus';
-import {getWpsAllData, exportCheck} from "@/api/wps_list_export/wps_list_export";
+import {exportCheck, getWpsAllData} from "@/api/wps_list_export/wps_list_export";
 
 
 export default {
@@ -162,7 +181,7 @@ export default {
     const multiple = ref(true);
     const totalRecords = ref(0);
     const daterangeCreateTime = ref([]);
-    const pageSizeValue = ref(0)
+    // const pageSizeValue = ref(10)
 
     const queryParams = reactive({
       page: 1,
@@ -177,19 +196,11 @@ export default {
     const fetchData = async () => {
       loading.value = true;
       try {
-        const response = await getWpsAllData({
+        const data = await getWpsAllData({
           page: queryParams.page,
           pageSize: queryParams.pageSize,
-          // Uncomment and provide additional filters as needed
-          // customerCode: queryParams.customerCode,
           warehousingNumber: queryParams.warehousingNumber,
-          // orderStatus: queryParams.orderStatus,
-          // beginCreateTime: queryParams.beginCreateTime,
-          // endCreateTime: queryParams.endCreateTime,
         });
-        const data = response;
-        console.log(pageSizeValue.value)
-
         if (data?.pageData && Array.isArray(data.pageData)) {
           dataSource.value = data.pageData; // 设置表格数据
           totalRecords.value = data.totalRecords || 0; // 总记录数
@@ -249,10 +260,10 @@ export default {
     const handlePageChange = (pagination) => {
       const { limit, page } = pagination; // 解构出 limit 和 page
       queryParams.page = page;            // 更新当前页码
-      queryParams.pageSize = limit;       // 更新每页大小
-      fetchData();                        // 重新加载数据
+      queryParams.pageSize = limit;// 更新每页条目数
+      console.log(limit)
+      fetchData();                 // 重新加载数据
     };
-
 
     const handleSelectionChange = (selection) => {
       single.value = selection.length !== 1;
@@ -260,9 +271,11 @@ export default {
     };
 
     const handleOpenDetail = (item) => {
-      selectedItem.value = item;
+      console.log('查看详情:', item); // 检查 item 数据是否正确
+      selectedItem.value = { ...item }; // 确保赋值为完整的当前行数据
       isModalVisible.value = true;
     };
+
 
     const handleCloseDetail = () => {
       isModalVisible.value = false;
