@@ -2,14 +2,14 @@
   <div class="app-container">
     <!-- 搜索表单 -->
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="80px">
-      <el-form-item label="客户代码" prop="customerCode">
-        <el-input
-            v-model="queryParams.customerCode"
-            placeholder="请输入客户代码"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="客户代码" prop="customerCode">-->
+<!--        <el-input-->
+<!--            v-model="queryParams.customerCode"-->
+<!--            placeholder="请输入客户代码"-->
+<!--            clearable-->
+<!--            @keyup.enter="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="入库单号" prop="warehousingNumber">
         <el-input
             v-model="queryParams.warehousingNumber"
@@ -18,23 +18,23 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="订单状态" prop="orderStatus">
-        <el-select v-model="queryParams.orderStatus" placeholder="请选择订单状态" clearable>
-          <el-option label="已完成" value="completed" />
-          <el-option label="进行中" value="inProgress" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="创建时间" style="width: 308px">
-        <el-date-picker
-            v-model="daterangeCreateTime"
-            value-format="YYYY-MM-DD"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            @change="handleDateChange"
-        ></el-date-picker>
-      </el-form-item>
+<!--      <el-form-item label="订单状态" prop="orderStatus">-->
+<!--        <el-select v-model="queryParams.orderStatus" placeholder="请选择订单状态" clearable>-->
+<!--          <el-option label="已完成" value="completed" />-->
+<!--          <el-option label="进行中" value="inProgress" />-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="创建时间" style="width: 308px">-->
+<!--        <el-date-picker-->
+<!--            v-model="daterangeCreateTime"-->
+<!--            value-format="YYYY-MM-DD"-->
+<!--            type="daterange"-->
+<!--            range-separator="-"-->
+<!--            start-placeholder="开始日期"-->
+<!--            end-placeholder="结束日期"-->
+<!--            @change="handleDateChange"-->
+<!--        ></el-date-picker>-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -44,7 +44,7 @@
     <!-- 操作按钮 -->
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">修改</el-button>
@@ -63,12 +63,16 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column type="index" label="序号" width="50" align="center" />
       <el-table-column label="客户代码" align="center" prop="customerCode" />
+      <el-table-column label="物流模式" align="center" prop="logisticsMode" />
       <el-table-column label="入库单号" align="center" prop="warehousingNumber" />
       <el-table-column label="订单状态" align="center" prop="orderStatus" />
-      <el-table-column label="箱数" align="center" prop="boxCount" />
+      <el-table-column label="负责人" align="center" prop="principal" />
+      <el-table-column label="发货时间" align="center" prop="sellerShipmentDate" />
+      <el-table-column label="费用合计" align="center" prop="customerInitialBillingTotal" />
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button link type="primary" @click="handleOpenDetail(scope.row)">查看详情</el-button>
+          <el-button link type="primary" @click="postRobot(scope.row)" v-hasPermi="['wps:check']">导出账单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -77,17 +81,61 @@
     <pagination
         v-show="totalRecords > 0"
         :total="totalRecords"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
+        v-model:page="queryParams.page"
+        v-model:pageSize="queryParams.pageSize"
         @pagination="handlePageChange"
     />
 
-    <!-- 查看详情弹窗 -->
-    <el-dialog v-model="isModalVisible" title="详细信息" width="500px" append-to-body>
-      <el-descriptions border column="1">
+    <el-dialog v-model="isModalVisible" title="详细信息" width="800px" append-to-body>
+      <el-descriptions border column="2">
+        <!-- 基本信息 -->
         <el-descriptions-item label="序号">{{ selectedItem.serialNumber }}</el-descriptions-item>
+        <el-descriptions-item label="客户代码">{{ selectedItem.customerCode }}</el-descriptions-item>
+        <el-descriptions-item label="客户名称">{{ selectedItem.customerName }}</el-descriptions-item>
+        <el-descriptions-item label="客户类型">{{ selectedItem.customerType }}</el-descriptions-item>
+        <el-descriptions-item label="物流模式">{{ selectedItem.logisticsMode }}</el-descriptions-item>
+        <el-descriptions-item label="订单状态">{{ selectedItem.orderStatus }}</el-descriptions-item>
+
+        <!-- 时间节点 -->
         <el-descriptions-item label="卖家发货日期">{{ selectedItem.sellerShipmentDate }}</el-descriptions-item>
+        <el-descriptions-item label="中转仓入库日期">{{ selectedItem.transferWarehouseInDate }}</el-descriptions-item>
+        <el-descriptions-item label="中转发运日期">{{ selectedItem.transferDispatchDate }}</el-descriptions-item>
+        <el-descriptions-item label="莫斯科提货日期">{{ selectedItem.moscowPickupDate }}</el-descriptions-item>
+        <el-descriptions-item label="海外仓入库日期">{{ selectedItem.overseasWarehouseInDate }}</el-descriptions-item>
+        <el-descriptions-item label="客户付款日期">{{ selectedItem.customerPaymentDate }}</el-descriptions-item>
+
+        <!-- 物流单号 -->
         <el-descriptions-item label="客户交货物流单号">{{ selectedItem.customerDeliveryTrackingNumber }}</el-descriptions-item>
+        <el-descriptions-item label="承运商物流单号">{{ selectedItem.carrierTrackingNumber }}</el-descriptions-item>
+        <el-descriptions-item label="入库单号">{{ selectedItem.warehousingNumber }}</el-descriptions-item>
+
+        <!-- 客户信息 -->
+        <el-descriptions-item label="负责人">{{ selectedItem.principal }}</el-descriptions-item>
+        <el-descriptions-item label="商品名称">{{ selectedItem.productName }}</el-descriptions-item>
+        <el-descriptions-item label="品类">{{ selectedItem.category }}</el-descriptions-item>
+
+        <!-- 货物信息 -->
+        <el-descriptions-item label="货值">{{ selectedItem.value }}</el-descriptions-item>
+        <el-descriptions-item label="SKU总数">{{ selectedItem.skuTotalCount }}</el-descriptions-item>
+        <el-descriptions-item label="箱数">{{ selectedItem.boxCount }}</el-descriptions-item>
+        <el-descriptions-item label="客户包装总重量 (kg)">{{ selectedItem.customerPackagingTotalWeight }}</el-descriptions-item>
+        <el-descriptions-item label="客户包装总方数 (m³)">{{ selectedItem.customerPackagingTotalVolume }}</el-descriptions-item>
+        <el-descriptions-item label="原缠后总重量 (kg)">{{ selectedItem.originalWeightAfterWrapping }}</el-descriptions-item>
+        <el-descriptions-item label="原缠后总方数 (m³)">{{ selectedItem.originalVolumeAfterWrapping }}</el-descriptions-item>
+        <el-descriptions-item label="密度（原缠后）">{{ selectedItem.densityAfterWrapping }}</el-descriptions-item>
+
+        <!-- 费用信息 -->
+        <el-descriptions-item label="客户单价 (￥)">{{ selectedItem.customerUnitPrice }}</el-descriptions-item>
+        <el-descriptions-item label="客户运费 (￥)">{{ selectedItem.customerFreight }}</el-descriptions-item>
+        <el-descriptions-item label="客户上架费 (￥)">{{ selectedItem.customerShelvingFee }}</el-descriptions-item>
+        <el-descriptions-item label="客户杂费 (￥)">{{ selectedItem.customerMiscellaneousFees }}</el-descriptions-item>
+        <el-descriptions-item label="保险费 (￥)">{{ selectedItem.insuranceFee }}</el-descriptions-item>
+        <el-descriptions-item label="提货费 (￥)">{{ selectedItem.goodCostGet }}</el-descriptions-item>
+        <el-descriptions-item label="客户头程账单合计 (￥)">{{ selectedItem.customerInitialBillingTotal }}</el-descriptions-item>
+
+        <!-- 其他信息 -->
+        <el-descriptions-item label="付款主体">{{ selectedItem.payBody }}</el-descriptions-item>
+        <el-descriptions-item label="备注说明">{{ selectedItem.remarks }}</el-descriptions-item>
       </el-descriptions>
       <template #footer>
         <el-button @click="handleCloseDetail">关闭</el-button>
@@ -99,7 +147,7 @@
 <script>
 import {ref, reactive, onMounted} from 'vue';
 import {ElMessage} from 'element-plus';
-import {getWpsAllData} from "@/api/wps_list_export/wps_list_export";
+import {getWpsAllData, exportCheck} from "@/api/wps_list_export/wps_list_export";
 
 
 export default {
@@ -114,12 +162,13 @@ export default {
     const multiple = ref(true);
     const totalRecords = ref(0);
     const daterangeCreateTime = ref([]);
+    const pageSizeValue = ref(0)
 
     const queryParams = reactive({
-      pageNum: 1,
+      page: 1,
       pageSize: 10,
       customerCode: '',
-      warehousingNumber: '',
+      warehousingNumber: null,
       orderStatus: '',
       beginCreateTime: '',
       endCreateTime: ''
@@ -129,7 +178,7 @@ export default {
       loading.value = true;
       try {
         const response = await getWpsAllData({
-          page: queryParams.pageNum,
+          page: queryParams.page,
           pageSize: queryParams.pageSize,
           // Uncomment and provide additional filters as needed
           // customerCode: queryParams.customerCode,
@@ -138,13 +187,8 @@ export default {
           // beginCreateTime: queryParams.beginCreateTime,
           // endCreateTime: queryParams.endCreateTime,
         });
-        console.log(response)
-        // if (response?.code !== '200') {
-        //   ElMessage.error(response?.message || '未知错误，请稍后重试');
-        //   return;
-        // }
-
         const data = response;
+        console.log(pageSizeValue.value)
 
         if (data?.pageData && Array.isArray(data.pageData)) {
           dataSource.value = data.pageData; // 设置表格数据
@@ -153,16 +197,40 @@ export default {
           ElMessage.error('数据格式不正确，请联系管理员');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
-        ElMessage.error('发生意外错误，请检查网络或稍后重试');
+        ElMessage.error('发生意外错误');
       } finally {
         loading.value = false;
       }
     };
 
+    const postRobot = async (item) => {
+      loading.value = true; // 使用 Vue 的 reactive 状态控制加载
+      try {
+        const response = await exportCheck(item); // 假设 `exportCheck` 是已引入的 API 方法
+        console.log(response);
+
+        if (response.code !== '200') {
+          // API 响应状态码不为 200，提示错误信息
+          ElMessage.success(response.message || '推送账单机器人成功');
+        }
+      } catch (error) {
+        // 捕获异常，根据错误类型显示信息
+        if (error.response) {
+          const errorData = error.response.data || { message: '服务器响应异常' };
+          ElMessage.error(errorData.message || '未知错误');
+        } else {
+          // 捕获非 HTTP 错误
+          ElMessage.error(error.message || '发生意外错误');
+        }
+      } finally {
+        loading.value = false; // 结束加载状态
+      }
+    };
+
+
 
     const handleQuery = () => {
-      queryParams.pageNum = 1;
+      queryParams.page = 1;
       fetchData();
     };
 
@@ -171,17 +239,20 @@ export default {
         customerCode: '',
         warehousingNumber: '',
         orderStatus: '',
-        pageNum: 1,
-        pageSize: 10
+        page: 1,
+        pageSize: 10,
       });
       daterangeCreateTime.value = [];
       fetchData();
     };
 
-    const handlePageChange = (page) => {
-      queryParams.pageNum = page;
-      fetchData();
+    const handlePageChange = (pagination) => {
+      const { limit, page } = pagination; // 解构出 limit 和 page
+      queryParams.page = page;            // 更新当前页码
+      queryParams.pageSize = limit;       // 更新每页大小
+      fetchData();                        // 重新加载数据
     };
+
 
     const handleSelectionChange = (selection) => {
       single.value = selection.length !== 1;
@@ -243,7 +314,8 @@ export default {
       handleAdd,
       handleUpdate,
       handleDelete,
-      handleExport
+      handleExport,
+      postRobot
     };
   }
 };

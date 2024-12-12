@@ -1,5 +1,5 @@
 // 获取全部的物流记录
-import request from "../../utils/request.js";
+import request from '@/utils/request'
 
 export const getWpsAllData = async (p) => {
     return await request({
@@ -7,7 +7,8 @@ export const getWpsAllData = async (p) => {
         method: 'get',
         params: {  // 使用 params 传递分页参数
             page: p.page,
-            pageSize: p.pageSize
+            pageSize: p.pageSize,
+            targetValue: p.warehousingNumber
         }
     });
 };

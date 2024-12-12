@@ -347,7 +347,7 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('guest/guest/export', {
+  proxy.download('guest/export', {
     ...queryParams.value
   }, `guest_${new Date().getTime()}.xlsx`)
 }
