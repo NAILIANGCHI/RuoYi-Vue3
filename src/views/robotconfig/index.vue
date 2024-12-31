@@ -59,11 +59,8 @@
 
     <el-table v-loading="loading" :data="robotconfigList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键id" align="center" prop="id" />
+      <el-table-column label="微信头像" align="center" prop="wxPic" />
       <el-table-column label="微信appid" align="center" prop="wxAppid" />
-      <el-table-column label="微信token" align="center" prop="wxToken" />
-      <el-table-column label="微信uuid" align="center" prop="wxUuid" />
-      <el-table-column label="微信qr" align="center" prop="wxQr" />
       <el-table-column label="微信id" align="center" prop="wxId" />
       <el-table-column label="微信昵称" align="center" prop="wxName" />
       <el-table-column label="角色状态" align="center" prop="status">
