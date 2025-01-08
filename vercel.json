@@ -2,7 +2,11 @@
   "rewrites": [
     {
       "source": "/prod-api/(.*)",
-      "destination": "https://api.naraci.top/prod-api"
+      "destination": "http://112.124.65.228:9081/prod-api/$1"
+    },
+    {
+      "source": "/static/(.*)",  // 如果你的静态资源在 /static/ 目录下
+      "destination": "/static/$1"
     },
     {
       "source": "/:path*",
