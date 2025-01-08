@@ -9,7 +9,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/login?redirect=/index",
+      "source": "/login?redirect=/(.*)",
       "destination": "/index.html"
     }
   ],
