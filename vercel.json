@@ -5,7 +5,7 @@
       "destination": "http://112.124.65.228:9081/prod-api/$1"
     },
     {
-      "source": "/static/(.*)",  // 如果你的静态资源在 /static/ 目录下
+      "source": "/static/(.*)",
       "destination": "/static/$1"
     },
     {
