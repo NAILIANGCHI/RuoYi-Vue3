@@ -1,11 +1,12 @@
 {
   "rewrites": [
+    { "source": "/:path*",
+      "destination": "/index.html" 
+    },
     {
       "source": "/prod-api/(.*)",
       "destination": "http://112.124.65.228:9081/$1"
-    },
-    { "source": "/:path*",
-      "destination": "/index.html" }
+    }
   ],
   "cleanUrls": true,
   "trailingSlash": false
