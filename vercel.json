@@ -1,11 +1,16 @@
 {
   "rewrites": [
-    { "source": "/:path*",
-      "destination": "/index.html" 
-    },
     {
       "source": "/prod-api/(.*)",
       "destination": "http://112.124.65.228:9081/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login?redirect=/index",
+      "destination": "/index.html"
     }
   ],
   "cleanUrls": true,
