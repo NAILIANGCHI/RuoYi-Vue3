@@ -5,7 +5,7 @@
       "destination": "http://112.124.65.228:9081/$1"
     },
     {
-      "source": "/(.*)",  // 捕获所有路径，包括子路径
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
