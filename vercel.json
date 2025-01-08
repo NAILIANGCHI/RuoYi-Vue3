@@ -1,11 +1,12 @@
 {
   "rewrites": [
-     {
+    {
       "source": "/prod-api/(.*)",
       "destination": "http://112.124.65.228:9081/$1"
     },
-    { "source": "/:path*",
-      "destination": "/index.html" 
+    {
+      "source": "/(.*)",  // 捕获所有路径，包括子路径
+      "destination": "/index.html"
     }
   ],
   "cleanUrls": true,
