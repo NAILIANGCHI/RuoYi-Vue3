@@ -1,16 +1,9 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/prod-api/(.*)",
-      "destination": "http://112.124.65.228:9081/prod-api/$1"
-    },
-    {
-      "source": "/static/(.*)",
-      "destination": "/static/$1"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/index.html"
+      "destination": "http://112.124.65.228:9081/$1",
+      "permanent": false
     }
   ]
 }
