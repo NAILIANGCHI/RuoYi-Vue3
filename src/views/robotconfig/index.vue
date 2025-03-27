@@ -1,69 +1,43 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="微信昵称" prop="wxName">
-        <el-input
-          v-model="queryParams.wxName"
-          placeholder="请输入微信昵称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <!-- 搜索表单 -->
+<!--    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">-->
+<!--      <el-form-item label="微信昵称" prop="wxName">-->
+<!--        <el-input-->
+<!--            v-model="queryParams.wxName"-->
+<!--            placeholder="请输入微信昵称"-->
+<!--            clearable-->
+<!--            @keyup.enter="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>-->
+<!--        <el-button icon="Refresh" @click="resetQuery">重置</el-button>-->
+<!--      </el-form-item>-->
+<!--    </el-form>-->
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['robotconfig:robotconfig:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['robotconfig:robotconfig:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['robotconfig:robotconfig:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['robotconfig:robotconfig:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+    <!-- 新增按钮 -->
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            plain-->
+<!--            icon="Plus"-->
+<!--            @click="handleAddQrCode"-->
+<!--            v-hasPermi="['robotconfig:robotconfig:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
+<!--      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>-->
+<!--    </el-row>-->
 
+    <!-- 数据表格 -->
     <el-table v-loading="loading" :data="robotconfigList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="微信头像" align="center" prop="wxPic" />
       <el-table-column label="微信appid" align="center" prop="wxAppid" />
       <el-table-column label="微信id" align="center" prop="wxId" />
       <el-table-column label="微信昵称" align="center" prop="wxName" />
-      <el-table-column label="角色状态" align="center" prop="status">
+      <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
           <dict-tag :options="sys_user_status" :value="scope.row.status"/>
         </template>
@@ -84,38 +58,49 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['robotconfig:robotconfig:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['robotconfig:robotconfig:remove']">删除</el-button>
+<!--          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['robotconfig:robotconfig:remove']">删除</el-button>-->
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
+        v-show="total > 0"
+        :total="total"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        @pagination="getList"
     />
 
     <!-- 添加或修改微信机器人配置对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="robotconfigRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="扫码登录" prop="scan_qr">
+          <div class="qr-container">
+            <img v-if="qrCodeBase64" :src="qrCodeBase64" alt="微信二维码" class="qr-image" />
+            <el-button v-else type="info" loading>二维码加载中...</el-button>
+          </div>
+          <div class="qr-actions">
+            <el-button type="primary" @click="refreshQRCode">更换二维码</el-button>
+            <el-button type="success" @click="confirmLogin">确认登录</el-button>
+          </div>
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <el-button type="primary" @click="submitForm">确定</el-button>
+          <el-button @click="cancel">取消</el-button>
         </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup name="Robotconfig">
-import { listRobotconfig, getRobotconfig, delRobotconfig, addRobotconfig, updateRobotconfig } from "@/api/robotconfig/robotconfig";
+<script setup>
+import { listRobotconfig, getRobotconfig, delRobotconfig, addRobotconfig, updateRobotconfig, wxBotQrCode, confirmWxLogin } from "@/api/robotconfig/robotconfig";
+import { getCurrentInstance, ref, reactive, toRefs, onMounted } from "vue";
 
 const { proxy } = getCurrentInstance();
 const { sys_user_status } = proxy.useDict('sys_user_status');
@@ -130,36 +115,35 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 
+// 表单数据
 const data = reactive({
-  form: {},
+  form: {
+    id: null,
+    wxAppid: "",
+    wxUuid: "",
+    wxQr: "",
+    wxId: "",
+    wxName: "",
+    status: "",
+    wxPic: "",
+    createBy: "",
+    createTime: "",
+    updateBy: "",
+    updateTime: "",
+    remark: "",
+  },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
     wxName: null,
   },
   rules: {
-    wxAppid: [
-      { required: true, message: "微信appid不能为空", trigger: "blur" }
-    ],
-    wxToken: [
-      { required: true, message: "微信token不能为空", trigger: "blur" }
-    ],
-    wxUuid: [
-      { required: true, message: "微信uuid不能为空", trigger: "blur" }
-    ],
-    wxId: [
-      { required: true, message: "微信id不能为空", trigger: "blur" }
-    ],
-    wxName: [
-      { required: true, message: "微信昵称不能为空", trigger: "blur" }
-    ],
-    status: [
-      { required: true, message: "角色状态不能为空", trigger: "change" }
-    ],
-  }
+    remark: [{ required: true, message: "请输入备注", trigger: "blur" }],
+  },
+  qrCodeBase64: "",
 });
 
-const { queryParams, form, rules } = toRefs(data);
+const { queryParams, form, qrCodeBase64 } = toRefs(data);
 
 /** 查询微信机器人配置列表 */
 function getList() {
@@ -171,82 +155,98 @@ function getList() {
   });
 }
 
-// 取消按钮
+/** 取消并重置表单 */
 function cancel() {
   open.value = false;
   reset();
 }
 
-// 表单重置
+/** 表单重置 */
 function reset() {
   form.value = {
     id: null,
-    wxAppid: null,
-    wxToken: null,
-    wxUuid: null,
-    wxQr: null,
-    wxId: null,
-    wxName: null,
-    status: null,
-    wxPic: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    remark: null
+    wxAppid: "",
+    wxUuid: "",
+    wxQr: "",
+    wxId: "",
+    wxName: "",
+    status: "",
+    wxPic: "",
+    createBy: "",
+    createTime: "",
+    updateBy: "",
+    updateTime: "",
+    remark: "",
   };
+  qrCodeBase64.value = "";
   proxy.resetForm("robotconfigRef");
 }
 
-/** 搜索按钮操作 */
+/** 搜索 */
 function handleQuery() {
   queryParams.value.pageNum = 1;
   getList();
 }
 
-/** 重置按钮操作 */
+/** 重置搜索 */
 function resetQuery() {
   proxy.resetForm("queryRef");
   handleQuery();
 }
 
-// 多选框选中数据
+/** 处理表格多选 */
 function handleSelectionChange(selection) {
   ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
+  single.value = selection.length !== 1;
   multiple.value = !selection.length;
 }
 
-/** 新增按钮操作 */
-function handleAdd() {
+/** 新增机器人 */
+async function handleAddQrCode() {
   reset();
   open.value = true;
-  title.value = "添加微信机器人配置";
+  title.value = "添加微信机器人";
+
+  try {
+    const response = await wxBotQrCode();
+    if (response.data) {
+      Object.assign(form.value, response.data);
+      qrCodeBase64.value = response.data.qrImgBase64 || "";
+    } else {
+      proxy.$modal.msgError("获取二维码失败，请重试");
+    }
+  } catch (error) {
+    proxy.$modal.msgError("请求失败，请检查网络连接");
+  }
 }
 
-/** 修改按钮操作 */
+/** 修改机器人 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
-  getRobotconfig(_id).then(response => {
-    form.value = response.data;
-    open.value = true;
-    title.value = "修改微信机器人配置";
+  getRobotconfig(row.id).then(response => {
+    if (response.data) {
+      Object.assign(form.value, response.data);
+      open.value = true;
+      title.value = "修改微信机器人";
+      getQRCode();
+    }
   });
 }
 
-/** 提交按钮 */
+/** 提交表单 */
 function submitForm() {
   proxy.$refs["robotconfigRef"].validate(valid => {
     if (valid) {
-      if (form.value.id != null) {
-        updateRobotconfig(form.value).then(response => {
+      const payload = { ...form.value };
+
+      if (payload.id) {
+        updateRobotconfig(payload).then(() => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addRobotconfig(form.value).then(response => {
+        addRobotconfig(payload).then(() => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -256,23 +256,123 @@ function submitForm() {
   });
 }
 
-/** 删除按钮操作 */
+/** 删除机器人 */
 function handleDelete(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除微信机器人配置编号为"' + _ids + '"的数据项？').then(function() {
-    return delRobotconfig(_ids);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  proxy.$modal.confirm(`是否确认删除微信机器人配置编号为"${_ids}"的数据项？`)
+      .then(() => delRobotconfig(_ids))
+      .then(() => {
+        getList();
+        proxy.$modal.msgSuccess("删除成功");
+      })
+      .catch(() => {});
 }
 
-/** 导出按钮操作 */
-function handleExport() {
-  proxy.download('robotconfig/robotconfig/export', {
-    ...queryParams.value
-  }, `robotconfig_${new Date().getTime()}.xlsx`)
+/** 获取微信二维码 */
+async function getQRCode() {
+  try {
+    const response = await wxBotQrCode(robotconfigList.value[0].wxAppid);
+    if (response.data && response.data.qrImgBase64) {
+      qrCodeBase64.value = response.data.qrImgBase64;
+      // 存储 uuid，用于确认登录
+      form.value.wxUuid = response.data.uuid;  // 存储 uuid
+    } else {
+      proxy.$modal.msgError("获取二维码失败，请重试");
+    }
+  } catch (error) {
+    proxy.$modal.msgError("请求失败，请检查网络连接");
+  }
 }
 
-getList();
+/** 更换二维码 */
+function refreshQRCode() {
+  qrCodeBase64.value = "";
+  getQRCode();
+}
+
+/** 确认登录 */
+async function confirmLogin() {
+  if (!form.value.wxUuid) {
+    proxy.$modal.msgError("缺少必要参数，无法确认登录");
+    return;
+  }
+
+  try {
+   var data = {
+      appId: form.value.wxAppid,
+      uuid: form.value.wxUuid,  // 使用存储的 uuid
+    }
+    const response = await confirmWxLogin(data);
+
+    if (response.code === 200) {
+      if(response.data.nickName === mull) {
+        proxy.$modal.msgError("失败，请重新扫码登录");
+        return;
+      }
+      proxy.$modal.msgSuccess("登录确认成功！");
+      updateRobotconfig(payload).then(() => {
+        proxy.$modal.msgSuccess("更新成功");
+        open.value = false;
+        getList();
+      });
+      open.value = false; // 关闭弹窗
+      getList(); // 刷新列表
+    } else {
+      proxy.$modal.msgError(response.msg || "登录失败，请重试");
+    }
+  } catch (error) {
+    console.log("确认登录失败：", error)
+    proxy.$modal.msgError("请求失败，请检查网络连接");
+  }
+}
+
+
+// 组件加载时获取数据
+onMounted(() => {
+  getList();
+});
 </script>
+
+
+<style scoped>
+.qr-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.qr-image {
+  max-width: 100%;  /* 限制最大宽度 */
+  max-height: 300px; /* 限制最大高度 */
+  width: auto;  /* 保持宽高比例 */
+  height: auto; /* 保持宽高比例 */
+  border-radius: 8px; /* 可选：使二维码边缘圆润一些 */
+}
+
+.qr-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

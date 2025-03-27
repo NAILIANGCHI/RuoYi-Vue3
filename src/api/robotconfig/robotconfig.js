@@ -42,3 +42,27 @@ export function delRobotconfig(id) {
     method: 'delete'
   })
 }
+
+//机器人二维码
+export function wxBotQrCode(appId) {
+  return request({
+    url: '/robot/common/getQr',
+    method: 'post',
+    params: { appId: appId }
+  })
+}
+
+
+export function confirmWxLogin(data) {
+  // console.log("Sending request with appId:", data.appId, "uuid:", data.uuid );
+  return request({
+    url: '/robot/common/checkQr',
+    method: 'post',
+    data: data
+  });
+}
+
+
+
+
+
