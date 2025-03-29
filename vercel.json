@@ -2,9 +2,28 @@
   "rewrites": [
     {
       "source": "/prod-api/(.*)",
-      "destination": "http://112.124.65.228:9081/prod-api/$1"
+      "destination": "http://112.124.65.228:9081/$1"
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "destination": "/_next/static/$1"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
     }
   ],
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/prod-api/(.*)",
+      "headers": [
+        {
+          "key": "X-Forwarded-For",
+          "value": "$remote_addr"
+        }
+      ]
+    }
+  ]
 }
