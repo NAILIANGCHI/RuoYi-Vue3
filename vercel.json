@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/prod-api/(.*)",
-      "destination": "https://api.naraci.top:9081/prod-api/$1"
+      "destination": "https://api.naraci.top/prod-api/$1"
     }
   ],
   "cleanUrls": true,
