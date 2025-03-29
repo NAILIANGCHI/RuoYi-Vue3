@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/prod-api/:path*",
-      "destination": "https://api.naraci.top/prod-api/:path*"
+      "source": "/prod-api/(.*)",
+      "destination": "http://112.124.65.228:9081/$1"
+    },
+    {
+      "source": "/:path((?!prod-api).*)",
+      "destination": "/"
     }
   ],
   "cleanUrls": true,
