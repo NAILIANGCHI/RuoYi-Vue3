@@ -2,7 +2,10 @@
   "rewrites": [
     {
       "source": "/prod-api/(.*)",
-      "destination": "https://api.naraci.top/prod-api/$1"
+      "destination": "https://api.naraci.top/$1"
+    },
+    { "source": "/(.*)",
+      "destination": "/"
     }
   ],
   "cleanUrls": true,
