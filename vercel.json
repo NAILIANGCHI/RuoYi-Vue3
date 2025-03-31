@@ -1,14 +1,15 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/prod-api/(.*)",
-      "destination": "http://112.124.65.228:9081/$1"
-    },
-    {
-      "source": "/:path((?!prod-api).*)",
-      "destination": "/"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
     }
   ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  "routes": [
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+  ]
 }
