@@ -1,16 +1,21 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "build:prod",
-      "config": { "distDir": "dist" }
+      "source": "/prod-api/(.*)",
+      "destination": "http://112.124.65.228:9081/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/.*",
-      "dest": "/index.html"
+      "source": "/prod-api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE" }
+      ]
     }
   ]
 }
