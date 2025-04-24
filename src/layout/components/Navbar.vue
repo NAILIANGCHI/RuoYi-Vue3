@@ -65,7 +65,7 @@ import HeaderSearch from '@/components/HeaderSearch'
 import RuoYiGit from '@/components/RuoYi/Git'
 import RuoYiDoc from '@/components/RuoYi/Doc'
 import useAppStore from '@/store/modules/app'
-import useUserStore from '@/store/modules/user'
+import { useUserStore } from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
 
 const appStore = useAppStore()
@@ -96,9 +96,12 @@ function logout() {
     type: 'warning'
   }).then(() => {
     userStore.logOut().then(() => {
-      location.href = '/index';
+      location.href = '/index'
+    }).catch(() => {
+      // 即使登出失败，也跳转到首页
+      location.href = '/index'
     })
-  }).catch(() => { });
+  }).catch(() => {})
 }
 
 const emits = defineEmits(['setLayout'])

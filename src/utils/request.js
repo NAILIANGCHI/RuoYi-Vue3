@@ -5,7 +5,7 @@ import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
-import useUserStore from '@/store/modules/user'
+import { useUserStore } from '@/store/modules/user'
 
 let downloadLoadingInstance;
 // 是否显示重新登录
@@ -26,9 +26,16 @@ service.interceptors.request.use(config => {
   const isToken = (config.headers || {}).isToken === false
   // 是否需要防止数据重复提交
   const isRepeatSubmit = (config.headers || {}).repeatSubmit === false
+  
   if (getToken() && !isToken) {
-    config.headers['Authorization'] = 'Bearer ' + getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+    config.headers['Authorization'] = 'Bearer ' + getToken()
   }
+  
+  // 登出请求特殊处理
+  if (config.url === '/logout') {
+    config.headers['Authorization'] = 'Bearer ' + getToken()
+  }
+  
   // get请求映射params参数
   if (config.method === 'get' && config.params) {
     let url = config.url + '?' + tansParams(config.params);

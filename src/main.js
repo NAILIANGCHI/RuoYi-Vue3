@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 
 import Cookies from 'js-cookie'
 
@@ -45,6 +46,9 @@ import DictTag from '@/components/DictTag'
 
 const app = createApp(App)
 
+// 创建 Pinia 实例
+const pinia = createPinia()
+
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict
 app.config.globalProperties.download = download
@@ -64,6 +68,7 @@ app.component('ImagePreview', ImagePreview)
 app.component('RightToolbar', RightToolbar)
 app.component('Editor', Editor)
 
+app.use(pinia)
 app.use(router)
 app.use(store)
 app.use(plugins)

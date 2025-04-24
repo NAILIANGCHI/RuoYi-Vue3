@@ -1,9 +1,10 @@
+import { defineStore } from 'pinia'
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
 import defAva from '@/assets/images/profile.jpg'
 
-const useUserStore = defineStore(
+export const useUserStore = defineStore(
   'user',
   {
     state: () => ({
@@ -14,6 +15,12 @@ const useUserStore = defineStore(
       roles: [],
       permissions: []
     }),
+    getters: {
+      // 判断是否是管理员
+      isAdmin: (state) => {
+        return state.roles.includes('admin')
+      }
+    },
     actions: {
       // 登录
       login(userInfo) {
@@ -58,18 +65,32 @@ const useUserStore = defineStore(
       // 退出系统
       logOut() {
         return new Promise((resolve, reject) => {
-          logout(this.token).then(() => {
+          try {
+            logout().then(() => {
+              this.token = ''
+              this.roles = []
+              this.permissions = []
+              removeToken()
+              resolve()
+            }).catch(error => {
+              console.error('登出失败:', error)
+              // 即使后端接口失败，也清除本地状态
+              this.token = ''
+              this.roles = []
+              this.permissions = []
+              removeToken()
+              resolve()
+            })
+          } catch (error) {
+            console.error('登出过程发生错误:', error)
+            // 发生错误时也清除本地状态
             this.token = ''
             this.roles = []
             this.permissions = []
             removeToken()
             resolve()
-          }).catch(error => {
-            reject(error)
-          })
+          }
         })
       }
     }
   })
-
-export default useUserStore
