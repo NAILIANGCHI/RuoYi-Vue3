@@ -83,7 +83,7 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
-  },
+  }
 ]
 
 // 动态路由，基于用户权限动态去加载
@@ -155,28 +155,6 @@ export const dynamicRoutes = [
         component: () => import('@/views/tool/gen/editTable'),
         name: 'GenEdit',
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
-      }
-    ]
-  },
-  {
-    path: '/logistics',
-    component: Layout,
-    redirect: '/logistics/order',
-    name: 'Logistics',
-    meta: { title: '物流管理', icon: 'shopping' },
-    children: [
-      {
-        path: 'order',
-        component: () => import('@/views/logistics/order/index'),
-        name: 'Order',
-        meta: { title: '订单管理', icon: 'list' }
-      },
-      {
-        path: 'order/detail/:id',
-        component: () => import('@/views/logistics/order/detail'),
-        name: 'OrderDetail',
-        meta: { title: '订单详情', activeMenu: '/logistics/order' },
-        hidden: true
       }
     ]
   }

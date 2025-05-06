@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 搜索表单 -->
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="80px">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="80px" @submit.prevent="handleQuery">
 <!--      <el-form-item label="客户代码" prop="customerCode">-->
 <!--        <el-input-->
 <!--            v-model="queryParams.customerCode"-->
@@ -255,7 +255,10 @@ export default {
 
 
 
-    const handleQuery = () => {
+    const handleQuery = (e) => {
+      if (e) {
+        e.preventDefault();
+      }
       queryParams.page = 1;
       fetchData();
     };

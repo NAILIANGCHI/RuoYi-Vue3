@@ -305,7 +305,8 @@ async function confirmLogin() {
     const response = await confirmWxLogin(data);
 
     if (response.code === 200) {
-      if(response.data.nickName === mull) {
+      // 修正拼写错误 mull 为 null
+      if(response.data.nickName === null) {
         proxy.$modal.msgError("失败，请重新扫码登录");
         return;
       }
@@ -337,21 +338,17 @@ onMounted(() => {
 <style scoped>
 .qr-container {
   display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
 }
-
 .qr-image {
-  max-width: 100%;  /* 限制最大宽度 */
-  max-height: 300px; /* 限制最大高度 */
-  width: auto;  /* 保持宽高比例 */
-  height: auto; /* 保持宽高比例 */
-  border-radius: 8px; /* 可选：使二维码边缘圆润一些 */
+  max-width: 300px;
+  max-height: 300px;
 }
-
 .qr-actions {
   display: flex;
-  justify-content: space-around;
+  gap: 10px;
   margin-top: 10px;
 }
 </style>
