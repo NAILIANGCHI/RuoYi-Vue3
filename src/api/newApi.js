@@ -10,3 +10,18 @@ export function wbOrder() {
     method: 'post'
   })
 }
+
+export function ozonOrder() {
+  return request({
+    url: '/wps/ozon/order',
+    method: 'post'
+  })
+}
+
+export function yandexOrder() {
+  return request({
+    url: '/wps/yandex/order',
+    method: 'post'
+  })
+}
+
