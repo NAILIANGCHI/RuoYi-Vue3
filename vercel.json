@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/prod-api/(.*)",
+      "source": "/",
       "destination": "http://112.124.65.228:9081/$1"
     },
     {
