@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "http://112.124.65.228:9081/$1"
+      "source": "/prod-api/(.*)",
+      "destination": "https://api.naraci.top/prod-api/$1"
     },
     {
       "source": "/(.*)",
