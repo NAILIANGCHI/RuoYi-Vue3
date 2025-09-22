@@ -1,37 +1,21 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/prod-api/(.*)",
-      "dest": "https://api.naraci.top/prod-api/$1",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization, X-Token",
-        "Access-Control-Allow-Credentials": "true",
-        "X-Forwarded-Host": "api.naraci.top",
-        "X-Forwarded-Proto": "https",
-        "X-Real-IP": "$remote_addr",
-        "Host": "api.naraci.top"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "rewrites": [
     {
-      "source": "/prod-api/:path*",
-      "destination": "https://api.naraci.top/prod-api/:path*"
+      "source": "/prod-api/(.*)",
+      "destination": "http://112.124.65.228:9081/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/prod-api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE" }
+      ]
     }
   ]
 }
-
