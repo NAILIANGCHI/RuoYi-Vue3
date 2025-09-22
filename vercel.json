@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/",
+      "source": "/prod-api/(.*)",
       "destination": "https://api.naraci.top/$1"
     },
     {
