@@ -53,12 +53,15 @@ export function wxBotQrCode(appId) {
 }
 
 
-export function confirmWxLogin(data) {
-  // console.log("Sending request with appId:", data.appId, "uuid:", data.uuid );
+export function confirmWxLogin(key) {
+  // 确保key不为空
+  if (!key) {
+    console.error('confirmWxLogin: key参数为空');
+    return Promise.reject(new Error('key参数为空'));
+  }
   return request({
-    url: '/robot/common/checkQr',
-    method: 'post',
-    data: data
+    url: '/robot/common/checkQr/' + key,  // 按照后端控制器要求直接拼接URL，注意路径变量定义格式
+    method: 'get'
   });
 }
 

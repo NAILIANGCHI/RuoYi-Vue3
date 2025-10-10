@@ -206,18 +206,10 @@ async function handleAddQrCode() {
   reset();
   open.value = true;
   title.value = "添加微信机器人";
-
-  try {
-    const response = await wxBotQrCode();
-    if (response.data) {
-      Object.assign(form.value, response.data);
-      qrCodeBase64.value = response.data.qrImgBase64 || "";
-    } else {
-      proxy.$modal.msgError("获取二维码失败，请重试");
-    }
-  } catch (error) {
-    proxy.$modal.msgError("请求失败，请检查网络连接");
-  }
+  qrCodeBase64.value = "";
+  
+  // 新增机器人时不自动获取二维码，让用户先选择或输入AppID
+  // 后续可以在用户填写完AppID后添加自动获取二维码的功能
 }
 
 /** 修改机器人 */
@@ -271,15 +263,52 @@ function handleDelete(row) {
 /** 获取微信二维码 */
 async function getQRCode() {
   try {
-    const response = await wxBotQrCode(robotconfigList.value[0].wxAppid);
-    if (response.data && response.data.qrImgBase64) {
-      qrCodeBase64.value = response.data.qrImgBase64;
-      // 存储 uuid，用于确认登录
-      form.value.wxUuid = response.data.uuid;  // 存储 uuid
+    console.log('robotconfigList:', robotconfigList.value);
+    
+    // 检查robotconfigList是否有数据
+    if (!robotconfigList.value || robotconfigList.value.length === 0) {
+      proxy.$modal.msgError("暂无机器人数据，请先添加机器人");
+      return;
+    }
+    
+    // 正确的参数格式：appId
+    const appId = robotconfigList.value[0].wxAppid;
+    if (!appId) {
+      proxy.$modal.msgError("未获取到有效AppID");
+      return;
+    }
+    
+    console.log('请求二维码，appId:', appId);
+    const response = await wxBotQrCode(appId);  
+    
+    console.log('二维码接口响应:', response.Data);
+    
+    if (response && response.Code === 200 && response.Data) {
+      console.log('原始二维码URL:', response.Data.QrCodeUrl);
+      // 清理QrCodeUrl中的额外空格和反引号
+      const qrCodeUrl = response.Data.QrCodeUrl;
+      // 如果包含反引号和空格，进行清理
+      if (qrCodeUrl && qrCodeUrl.includes('`')) {
+        qrCodeBase64.value = qrCodeUrl.replace(/`/g, '').trim();
+      } else {
+        qrCodeBase64.value = qrCodeUrl;
+      }
+      
+      // 使用正确的路径获取UUID
+      if (response.Data.Key) {
+        form.value.wxUuid = response.Data.Key;  // 从Data.Key获取uuid
+      } else if (response.uuid) {
+        form.value.wxUuid = response.uuid;  // 兼容原来的路径
+      }
+      
+      console.log('清理后的二维码URL:', qrCodeBase64.value);
+      console.log('使用的UUID:', form.value.wxUuid);
     } else {
+      console.error('获取二维码失败，响应数据不完整:', response);
       proxy.$modal.msgError("获取二维码失败，请重试");
     }
   } catch (error) {
+    console.error('获取二维码时发生错误:', error);
     proxy.$modal.msgError("请求失败，请检查网络连接");
   }
 }
@@ -298,11 +327,11 @@ async function confirmLogin() {
   }
 
   try {
-   var data = {
+    var data = {
       appId: form.value.wxAppid,
       uuid: form.value.wxUuid,  // 使用存储的 uuid
     }
-    const response = await confirmWxLogin(data);
+    const response = await confirmWxLogin(data.appId);
 
     if (response.code === 200) {
       // 修正拼写错误 mull 为 null
@@ -311,11 +340,18 @@ async function confirmLogin() {
         return;
       }
       proxy.$modal.msgSuccess("登录确认成功！");
-      updateRobotconfig(payload).then(() => {
-        proxy.$modal.msgSuccess("更新成功");
-        open.value = false;
-        getList();
-      });
+      
+      // 使用正确的payload变量
+      const payload = { ...form.value };
+      
+      if (payload.id) {
+        updateRobotconfig(payload).then(() => {
+          proxy.$modal.msgSuccess("更新成功");
+          open.value = false;
+          getList();
+        });
+      }
+      
       open.value = false; // 关闭弹窗
       getList(); // 刷新列表
     } else {
