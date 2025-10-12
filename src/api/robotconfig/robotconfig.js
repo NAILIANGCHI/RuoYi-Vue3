@@ -65,6 +65,53 @@ export function confirmWxLogin(key) {
   });
 }
 
+// 启动指定的微信机器人
+export function startRobot(appId) {
+  // 确保appId不为空
+  if (!appId) {
+    console.error('startRobot: appId参数为空');
+    return Promise.reject(new Error('appId参数为空'));
+  }
+  return request({
+    url: '/robot/manager/start/' + appId,
+    method: 'post'
+  });
+}
+
+// 停止指定的微信机器人
+export function stopRobot(appId) {
+  // 确保appId不为空
+  if (!appId) {
+    console.error('stopRobot: appId参数为空');
+    return Promise.reject(new Error('appId参数为空'));
+  }
+  return request({
+    url: '/robot/manager/stop/' + appId,
+    method: 'post'
+  });
+}
+
+// 获取所有机器人的状态
+export function getAllRobotStatus() {
+  return request({
+    url: '/robot/manager/status/all',
+    method: 'get'
+  });
+}
+
+// 获取指定机器人的状态
+export function getRobotStatus(appId) {
+  // 确保appId不为空
+  if (!appId) {
+    console.error('getRobotStatus: appId参数为空');
+    return Promise.reject(new Error('appId参数为空'));
+  }
+  return request({
+    url: '/robot/manager/status/' + appId,
+    method: 'get'
+  });
+}
+
 
 
 
