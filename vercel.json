@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/prod-api/(.*)",
-      "destination": "http://localhost:9081/$1"
+      "destination": "https://api.naraci.top/$1"
     },
     {
       "source": "/(.*)",
